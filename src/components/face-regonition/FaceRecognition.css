@@ -1,0 +1,22 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.img-box {
+  position: absolute;
+}
+
+img {
+  box-shadow: 0 0 4px rgb(41, 72, 114)
+}
+
+.bounding-box {
+  position: absolute;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  box-shadow: 0 0 0 3px #149df2 inset;
+  cursor: pointer;
+}
