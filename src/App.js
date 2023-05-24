@@ -1,25 +1,22 @@
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
+import Navigation from './components/navigation/Navigation';
+import Rank from './components/rank/Rank';
+import ImageLinkForm from './components/image-link-form/ImageLinkForm';
+import ParticlesBg from 'particles-bg';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component{
+  render() {
+    return (
+      <div className="App">
+        <Navigation />
+        <Rank />
+        <ImageLinkForm />
+        {/* <FaceRecognition /> */}
+        <ParticlesBg className='particles' type="cobweb" bg={true} num={150} color='#482386'/>
+      </div>
+    );
+  }
 }
 
 export default App;
