@@ -9,7 +9,7 @@
 }
 
 img {
-  box-shadow: 0 0 4px rgb(41, 72, 114)
+  box-shadow: 0 0 4px #888;
 }
 
 .bounding-box {
@@ -17,6 +17,6 @@ img {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  box-shadow: 0 0 0 3px #149df2 inset;
+  box-shadow: 0 0 0 3px #abcdef inset;
   cursor: pointer;
 }

@@ -11,7 +11,7 @@ export default function ImageLinkForm({ onInputChange, onButtonSubmit }) {
       <div className="form-img-wrapper">
         <div className="form pa4">
           <input className='f4 pa2 w-70 center' type='text' onChange={onInputChange}/>
-          <button className="w-25 f5 link ph3 pv2 dib white bg-light-purple pointer" id="detect-btn" onClick={onButtonSubmit}>Detect</button>
+          <button className="w-25 f5 link ph3 pv2 dib white pointer" id="detect-btn" onClick={onButtonSubmit}>Detect</button>
         </div>
       </div>
     </div>

@@ -3,7 +3,9 @@ import './App.css';
 import Navigation from './components/navigation/Navigation';
 import Rank from './components/rank/Rank';
 import ImageLinkForm from './components/image-link-form/ImageLinkForm';
-import FaceRecognition from './components/face-regonition/FaceRecogniton'
+import FaceRecognition from './components/face-regonition/FaceRecogniton';
+import Signin from './components/signin/Signin';
+import Register from './components/register/Register';
 import detect from './modules/detect-faces';
 import ParticlesBg from 'particles-bg';
 
@@ -13,7 +15,9 @@ class App extends Component{
     this.state = {
       imgURL: '',
       input: '',
-      box: {}
+      box: {},
+      route: 'signin',
+      isSignedIn: false
     }
   }
 
@@ -44,14 +48,33 @@ class App extends Component{
     }
   }
 
+  onRouteChange = (route) => {
+    return () => {
+      this.setState( { isSignedIn: route === 'home' ? true : false } );
+      this.setState( { route } );
+    }
+      
+  }
+
   render() {
+    const { isSignedIn, route, imgURL, box} = this.state;
     return (
       <div className="App">
-        <Navigation />
-        <Rank />
-        <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
-        <FaceRecognition imgURL={this.state.imgURL} box={this.state.box}/>
-        <ParticlesBg className='particles' type="cobweb" bg={true} num={150} color='#ffffff'/>
+        <ParticlesBg className='particles' type="lines" bg={true} num={150} color='#ffffff'/>
+        <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn}/>
+        { route === 'home' 
+          ?
+            <div>
+              <Rank />
+              <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
+              <FaceRecognition imgURL={imgURL} box={box}/>
+            </div>
+          :
+          this.state.route === 'register' ?
+            <Register onRouteChange={this.onRouteChange}/>
+          :
+            <Signin onRouteChange={this.onRouteChange} />
+        }
       </div>
     );
   }
