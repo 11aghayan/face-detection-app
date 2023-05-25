@@ -2,8 +2,21 @@ import bcrypt from 'bcrypt';
 
 
 const database = {
-  users: [],
-  login: []
+  users: [
+    {
+      name: 'Ayvaz',
+      id: '001',
+      email: 'ayvaz@mail.com',
+      joined: new Date(),
+      entries: 0
+    }
+  ],
+  login: [
+    {
+      email: 'ayvaz@mail.com',
+      hash: '$2b$10$C1s4hotCmYbpKvmJ7Dh3iera.ZvKQ29tmqjYXSVbJETdViYyxnPAS'
+    }
+  ]
 }
 
 // Sign in function
@@ -12,7 +25,9 @@ async function signin(req, res) {
 
   let hashedPassword;
 
-  if (email === database.users[0].email) {
+  const user = database.users.find(user => user.email === email)
+
+  if (user) {
     hashedPassword = database.login.find(pass => pass.email === email).hash;
   } else {
     return res.status(400).json({msg: 'Invalid credentials'});
@@ -21,14 +36,14 @@ async function signin(req, res) {
   const isPasswordTrue = await bcrypt.compare(password, hashedPassword);
 
   if (isPasswordTrue) {
-      return res.status(200).json({msg: 'signin'});
+      return res.status(200).json(user);
     } else {
-      return res.status(400).json({msg: 'Invalid credentials'});
+      return res.status(400).json({err: 'Invalid credentials'});
     }
 }
 
 // Register function
-function register(req, res) {
+async function register(req, res) {
   const { email, name, password } = req.body;
   const id = database.users.length ? Number(database.users[database.users.length - 1].id) + 1 : '001';
   const user = {
@@ -39,7 +54,7 @@ function register(req, res) {
     entries: 0
   };
 
-  bcrypt.hash(password, 10, (err, hash) => {
+  await bcrypt.hash(password, 10, (err, hash) => {
     database.login.push({
       email,
       hash
@@ -48,7 +63,7 @@ function register(req, res) {
 
   database.users.push(user);
 
-  res.status(201).send({msg: 'User created', user});
+  res.status(201).json(user);
 }
 
 // Get User function
@@ -73,7 +88,7 @@ function updateEntries(req, res) {
   
   if (user) {
     user.entries++;
-    return res.status(200).json({msg: `Entries updated`, user});
+    return res.status(200).json({msg: `Entries updated`, entries: user.entries});
   } else {
     return res.status(404).json({msg: `User with id ${id} was not found`})
   }

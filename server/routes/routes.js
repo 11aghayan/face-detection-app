@@ -1,7 +1,6 @@
 import express from 'express';
 const router = express.Router();
 import {
-  a,
   signin,
   register,
   getUser,
@@ -19,6 +18,6 @@ router.post('/register', register);
 router.get('/profile/:id', getUser);
 
 // Update entries
-router.post('/image', updateEntries)
+router.put('/image', updateEntries);
 
 export default router;

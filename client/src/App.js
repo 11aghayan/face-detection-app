@@ -17,11 +17,18 @@ class App extends Component{
       input: '',
       box: {},
       route: 'signin',
-      isSignedIn: false
+      isSignedIn: false,
+      user: {
+        email: '',
+        id: '',
+        name: '',
+        joined: '',
+        entries: 0
+      }
     }
   }
 
-  onInputChange = (event) => {
+  onInputChange = event => {
     this.setState( { input: event.target.value } )
   }
 
@@ -43,37 +50,56 @@ class App extends Component{
         bottomRow: height - (boundingBox.bottom_row * height)
       } } );
 
+      const response = await fetch('http://localhost:7000/image', {
+        method: 'put',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: this.state.user.id
+        })
+      });
+      
+      if (response.status === 200) {
+        const data = await response.json();
+        this.setState(Object.assign(this.state.user, { entries: data.entries }));
+      }
+
+
     } catch(err) {
       console.log(err);
     }
   }
 
-  onRouteChange = (route) => {
-    return () => {
-      this.setState( { isSignedIn: route === 'home' ? true : false } );
-      this.setState( { route } );
-    }
-      
+  onRouteChange = route => {
+      return () => {
+        this.setState( { isSignedIn: route === 'home' ? true : false } );
+        this.setState( { route } );
+      }
   }
+
+  loadUser = user => {
+    this.setState( { user } );
+  } 
 
   render() {
     const { isSignedIn, route, imgURL, box} = this.state;
     return (
       <div className="App">
-        <ParticlesBg className='particles' type="lines" bg={true} num={150} color='#ffffff'/>
-        <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn}/>
+        <ParticlesBg className='particles' type="lines" bg={true} num={150} color='#ffffff' />
+        <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn} />
         { route === 'home' 
           ?
             <div>
-              <Rank />
-              <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
-              <FaceRecognition imgURL={imgURL} box={box}/>
+              <Rank rank={this.state.user.entries} username={this.state.user.name}/>
+              <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
+              <FaceRecognition imgURL={imgURL} box={box} />
             </div>
           :
           this.state.route === 'register' ?
-            <Register onRouteChange={this.onRouteChange}/>
+            <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
           :
-            <Signin onRouteChange={this.onRouteChange} />
+            <Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
         }
       </div>
     );
