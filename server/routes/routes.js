@@ -8,8 +8,6 @@ import {
   updateEntries
 } from '../controllers/controllers.js'
 
-router.get('/', a);
-
 
 // Sign in route
 router.post('/signin', signin);

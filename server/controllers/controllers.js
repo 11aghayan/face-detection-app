@@ -1,56 +1,50 @@
+import bcrypt from 'bcrypt';
+
 
 const database = {
-  users: [
-    {
-      id: '123',
-      name: 'John',
-      email: 'john@mail.com',
-      password: 'secret',
-      entries: 0,
-      joined: new Date()
-    },
-    {
-      id: '124',
-      name: 'Jack',
-      email: 'jack@mail.com',
-      password: 'secret',
-      entries: 0,
-      joined: new Date()
-    }
-  ]
+  users: [],
+  login: []
 }
 
 // Sign in function
-function signin(req, res) {
+async function signin(req, res) {
   const { email, password } = req.body; 
 
-  if (
-    email === database.users[0].email 
-    &&
-    password === database.users[0].password
-    ) {
+  let hashedPassword;
+
+  if (email === database.users[0].email) {
+    hashedPassword = database.login.find(pass => pass.email === email).hash;
+  } else {
+    return res.status(400).json({msg: 'Invalid credentials'});
+  }
+
+  const isPasswordTrue = await bcrypt.compare(password, hashedPassword);
+
+  if (isPasswordTrue) {
       return res.status(200).json({msg: 'signin'});
     } else {
       return res.status(400).json({msg: 'Invalid credentials'});
     }
 }
 
-function a(req, res) {
-  res.json(database.users);
-}
-
 // Register function
 function register(req, res) {
   const { email, name, password } = req.body;
-  const id = Number(database.users[database.users.length - 1].id) + 1;
+  const id = database.users.length ? Number(database.users[database.users.length - 1].id) + 1 : '001';
   const user = {
     name,
     email,
-    password,
     id: String(id),
     joined: new Date(),
     entries: 0
   };
+
+  bcrypt.hash(password, 10, (err, hash) => {
+    database.login.push({
+      email,
+      hash
+    });
+  })
 
   database.users.push(user);
 
@@ -87,7 +81,6 @@ function updateEntries(req, res) {
 }
 
 export {
-  a,
   signin,
   register,
   getUser,
