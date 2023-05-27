@@ -16,17 +16,13 @@ app.use('/', router);
 
 
 //Port
-const PORT = 7000;
+const PORT = process.env.PORT || 7000;
 
 // Async function to start server
-function start() {
-  try {
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`)
-    })
-  } catch(err) {
-    console.log(err)
-  }
+try {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`)
+  })
+} catch(err) {
+  console.log(err)
 }
-
-start();

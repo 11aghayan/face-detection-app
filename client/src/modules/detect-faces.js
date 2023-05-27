@@ -34,8 +34,6 @@ function returnClarifaiJSONRequsetOptions(IMG_URL) {
   return requestOptions
 }
 
-// const img_url = 'https://samples.clarifai.com/metro-north.jpg';
-
 async function detect(imgURL) {
   const response = await fetch(`https://api.clarifai.com/v2/models/face-detection/outputs`, returnClarifaiJSONRequsetOptions(imgURL));
   const data = await response.json();

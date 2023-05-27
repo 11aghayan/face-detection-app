@@ -9,23 +9,25 @@ import Register from './components/register/Register';
 import detect from './modules/detect-faces';
 import ParticlesBg from 'particles-bg';
 
+const initalState = {
+  imgURL: '',
+  input: '',
+  box: {},
+  route: 'signin',
+  isSignedIn: false,
+  user: {
+    email: '',
+    id: '',
+    name: '',
+    joined: '',
+    entries: 0
+  }
+};
+
 class App extends Component{
   constructor() {
     super()
-    this.state = {
-      imgURL: '',
-      input: '',
-      box: {},
-      route: 'signin',
-      isSignedIn: false,
-      user: {
-        email: '',
-        id: '',
-        name: '',
-        joined: '',
-        entries: 0
-      }
-    }
+    this.state = initalState;
   }
 
   onInputChange = event => {
@@ -50,19 +52,23 @@ class App extends Component{
         bottomRow: height - (boundingBox.bottom_row * height)
       } } );
 
-      const response = await fetch('http://localhost:7000/image', {
-        method: 'put',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          id: this.state.user.id
-        })
-      });
-      
-      if (response.status === 200) {
-        const data = await response.json();
-        this.setState(Object.assign(this.state.user, { entries: data.entries }));
+      try {
+        const response = await fetch('http://localhost:7000/image', {
+          method: 'put',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: this.state.user.id
+          })
+        });
+        
+        if (response.status === 200) {
+          const data = await response.json();
+          this.setState(Object.assign(this.state.user, { entries: data.entries }));
+        }
+      } catch(err) {
+        console.log(err);
       }
 
 
@@ -72,10 +78,19 @@ class App extends Component{
   }
 
   onRouteChange = route => {
+
       return () => {
-        this.setState( { isSignedIn: route === 'home' ? true : false } );
+
+        if (route === 'home') {
+          this.setState({ isSignedIn: true });
+        } else {
+          this.setState(initalState);
+        }
+        
         this.setState( { route } );
+
       }
+
   }
 
   loadUser = user => {

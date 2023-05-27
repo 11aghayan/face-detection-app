@@ -15,6 +15,12 @@ async function signin(req, res) {
 
   const { email, password } = req.body;
 
+  if (!email || !password) {
+
+    return res.status(400).json({ msg: 'Incorrect form submission' });
+    
+  }
+
   try {
 
     const hash = await db('login').where({ email }).select('hash');
@@ -40,6 +46,12 @@ async function signin(req, res) {
 async function register(req, res) {
 
   const { email, name, password } = req.body;
+
+  if (!name || !email || !password) {
+
+    return res.status(400).json({ msg: 'Incorrect form submission' });
+
+  }
 
   try {
 
