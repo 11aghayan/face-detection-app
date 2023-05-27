@@ -1,98 +1,124 @@
 import bcrypt from 'bcrypt';
+import knex from 'knex';
+
+const db = knex({
+  client: 'pg',
+  connection: {
+    host: '',
+    port: '',
+    user: '',
+    password: '',
+    database: ''
+  }
+});
 
 
-const database = {
-  users: [
-    {
-      name: 'Ayvaz',
-      id: '001',
-      email: 'ayvaz@mail.com',
-      joined: new Date(),
-      entries: 0
-    }
-  ],
-  login: [
-    {
-      email: 'ayvaz@mail.com',
-      hash: '$2b$10$C1s4hotCmYbpKvmJ7Dh3iera.ZvKQ29tmqjYXSVbJETdViYyxnPAS'
-    }
-  ]
-}
-
-// Sign in function
+// Sign in 
 async function signin(req, res) {
-  const { email, password } = req.body; 
 
-  let hashedPassword;
+  const { email, password } = req.body;
 
-  const user = database.users.find(user => user.email === email)
+  try {
 
-  if (user) {
-    hashedPassword = database.login.find(pass => pass.email === email).hash;
-  } else {
-    return res.status(400).json({msg: 'Invalid credentials'});
+    const hash = await db('login').where({ email }).select('hash');
+    const isPasswordCorrect = await bcrypt.compare(password, hash[0].hash);
+
+    if ( isPasswordCorrect ) {
+      const user = await db('users').where({ email }).select('*');
+      return res.status(200).json(user[0]);
+    } else {
+      return res.status(400).json({ msg: 'Wrong credentials' })
+    }
+
+  } catch(err) {
+
+    console.log(err);
+    res.status(400).json({ msg: 'Unable to sign in' });
+
   }
 
-  const isPasswordTrue = await bcrypt.compare(password, hashedPassword);
-
-  if (isPasswordTrue) {
-      return res.status(200).json(user);
-    } else {
-      return res.status(400).json({err: 'Invalid credentials'});
-    }
 }
 
-// Register function
+// Register 
 async function register(req, res) {
+
   const { email, name, password } = req.body;
-  const id = database.users.length ? Number(database.users[database.users.length - 1].id) + 1 : '001';
-  const user = {
-    name,
-    email,
-    id: String(id),
-    joined: new Date(),
-    entries: 0
-  };
 
-  await bcrypt.hash(password, 10, (err, hash) => {
-    database.login.push({
-      email,
-      hash
-    });
-  })
+  try {
 
-  database.users.push(user);
+    await bcrypt.hash(password, 10, async (err, hash) => {
 
-  res.status(201).json(user);
+      try {
+
+        await db.transaction(async trx => {
+        const loginEmail = await trx('login')
+            .insert({ email, hash }, 'email');
+
+        const user = await trx('users')
+          .insert({
+            name,
+            email: loginEmail[0].email,
+            joined: new Date()
+          }, '*');
+
+        return res.status(201).json(user[0]);
+        })  
+
+      } catch(err) {
+
+        console.log(err)
+        return res.status(400).json({ msg: 'Unable to register' });
+
+      }
+
+    })
+
+  } catch(err) {
+
+    return res.status(400).json({ msg: 'Unable to register' });
+
+  }
+
 }
 
-// Get User function
-function getUser(req, res) {
+// Get User 
+async function getUser(req, res) {
+
   const { id } = req.params;
 
-  const user = database.users.find(user => user.id === id);
+  try {
 
-  if (user) {
-    return res.status(200).json({msg: `User ID : ${id}`, user})
-  }else { 
-    return res.status(404).json({msg: `No user with id ${id}`})
+    const user = await db.select('*').from('users').where({id});
+
+    if (user.length) {
+      return res.status(200).json(user[0])
+    } else { 
+      return res.status(404).json({msg: `No user with id ${id}`})
+    }
+  } catch(err) {
+    return res.status(500).json({msg: 'Error getting user'})
   }
 
 }
 
-// Update entries function
-function updateEntries(req, res) {
+// Update entries 
+async function updateEntries(req, res) {
+
   const { id } = req.body;
 
-  const user = database.users.find(user => user.id === id);
-  
-  if (user) {
-    user.entries++;
-    return res.status(200).json({msg: `Entries updated`, entries: user.entries});
-  } else {
-    return res.status(404).json({msg: `User with id ${id} was not found`})
+  try {
+    const entries = await db('users')
+      .where({id})
+      .increment('entries', 1)
+      .returning('entries');
+    if (entries.length) {
+      return res.status(200).json( {entries: entries[0].entries} );
+    } else {
+      return res.status(404).json( { msg: `No user with id ${id}` } ); 
+    }
+  } catch (err) {
+    return res.status(400).json({msg: 'Unable to increment entries count'})
   }
-  
 }
 
 export {
