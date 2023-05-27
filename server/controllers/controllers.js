@@ -1,15 +1,12 @@
 import bcrypt from 'bcrypt';
 import knex from 'knex';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const db = knex({
   client: 'pg',
-  connection: {
-    host: '',
-    port: '',
-    user: '',
-    password: '',
-    database: ''
-  }
+  connection: process.env.DB_CONNECTION_STRING
 });
 
 
