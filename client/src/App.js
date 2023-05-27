@@ -53,7 +53,7 @@ class App extends Component{
       } } );
 
       try {
-        const response = await fetch('http://localhost:7000/image', {
+        const response = await fetch('https://face-detection-be-kvl5.onrender.com/image', {
           method: 'put',
           headers: {
             'Content-Type': 'application/json'

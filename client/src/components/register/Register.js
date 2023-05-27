@@ -25,7 +25,7 @@ export default class Register extends React.Component {
   }
 
   onSubmitRegister = async () => {
-    const response = await fetch('http://localhost:7000/register', {
+    const response = await fetch('https://face-detection-be-kvl5.onrender.com/register', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json'
